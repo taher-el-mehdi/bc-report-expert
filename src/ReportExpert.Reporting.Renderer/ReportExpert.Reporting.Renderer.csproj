@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>ReportExpert.Reporting.Renderer</RootNamespace>
+    <AssemblyName>ReportExpert.Reporting.Renderer</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ReportViewerCore.WinForms" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ReportExpert.Core\ReportExpert.Core.csproj" />
+    <ProjectReference Include="..\ReportExpert.Domain\ReportExpert.Domain.csproj" />
+  </ItemGroup>
+</Project>

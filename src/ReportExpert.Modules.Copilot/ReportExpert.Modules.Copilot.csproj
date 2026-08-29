@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="WPF-UI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReportExpert.Modules.Copilot.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReportExpert.Common\ReportExpert.Common.csproj" />
+    <!--
+      The abstraction only. Nothing here references a specific MCP server, so the set of servers
+      stays a configuration concern.
+    -->
+    <ProjectReference Include="..\mcp\ReportExpert.Mcp.Client\ReportExpert.Mcp.Client.csproj" />
+  </ItemGroup>
+
+</Project>

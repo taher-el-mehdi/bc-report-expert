@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ReportExpert.RdlcDesigner</RootNamespace>
+    <AssemblyName>ReportExpert.RdlcDesigner</AssemblyName>
+    <Description>Clean-room Minimal RDLC layout designer for Report Expert</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icons\*.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" />
+    <PackageReference Include="WPF-UI" />
+  </ItemGroup>
+
+</Project>

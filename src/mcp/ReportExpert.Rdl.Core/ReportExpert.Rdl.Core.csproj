@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ReportExpert.Rdl.Core</RootNamespace>
+    <Description>RDL/RDLC document model, reader, editor and validator. Free of any Report Expert application dependency so the MCP server can ship standalone.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReportExpert.Rdl.Core.Tests" />
+    <InternalsVisibleTo Include="ReportExpert.Rdl.Mcp.Server" />
+    <InternalsVisibleTo Include="ReportExpert.Rdl.Mcp.Server.Tests" />
+  </ItemGroup>
+
+</Project>

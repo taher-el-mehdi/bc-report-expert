@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>ReportExpert.Modules.Preview</RootNamespace>
+    <AssemblyName>ReportExpert.Modules.Preview</AssemblyName>
+    <Description>Preview module — RDLC / Excel / Word layout rendering, sample data, and export.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="DocumentFormat.OpenXml" />
+    <PackageReference Include="Microsoft.Web.WebView2" />
+    <PackageReference Include="ReportViewerCore.NETCore" />
+    <PackageReference Include="ReportViewerCore.WinForms" />
+    <PackageReference Include="WPF-UI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReportExpert.Modules.Preview.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReportExpert.Common\ReportExpert.Common.csproj" />
+    <ProjectReference Include="..\ReportExpert.Core\ReportExpert.Core.csproj" />
+    <ProjectReference Include="..\ReportExpert.Editors\ReportExpert.Editors.csproj" />
+    <ProjectReference Include="..\ReportExpert.Modules.Copilot\ReportExpert.Modules.Copilot.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+<Project>
+
+  <!--
+    Inherit the repository-wide defaults, then tighten them for the MCP components.
+    Without this explicit import MSBuild stops searching upward at this file.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <!-- Tool and public API documentation is a shipped contract, so missing docs break the build. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\mcp\ReportExpert.Rdl.Mcp.Server\ReportExpert.Rdl.Mcp.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The tool-name documentation sync test reads the shipped README. -->
+    <EmbeddedResource Include="..\..\src\mcp\ReportExpert.Rdl.Mcp.Server\README.md" LogicalName="server-readme.md" />
+    <!-- Shared with the domain tests so both suites assert against the same report. -->
+    <EmbeddedResource Include="..\Shared\sample-report.rdlc" LogicalName="sample-report.rdlc" />
+  </ItemGroup>
+
+</Project>

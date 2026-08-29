@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ReportExpert.Reporting.Parser</RootNamespace>
+    <AssemblyName>ReportExpert.Reporting.Parser</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ReportExpert.Core\ReportExpert.Core.csproj" />
+    <ProjectReference Include="..\ReportExpert.Domain\ReportExpert.Domain.csproj" />
+  </ItemGroup>
+</Project>

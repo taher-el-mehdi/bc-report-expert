@@ -1,0 +1,421 @@
+<UserControl x:Class="ReportExpert.RdlcDesigner.Views.RdlcLayoutDesignerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+             xmlns:surface="clr-namespace:ReportExpert.RdlcDesigner.Surface"
+             x:Name="Root"
+             FontFamily="Segoe UI"
+             Background="{DynamicResource ApplicationBackgroundBrush}"
+             Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+  <UserControl.Resources>
+    <Style x:Key="ToolIconBtn" TargetType="Button">
+      <Setter Property="Width" Value="30" />
+      <Setter Property="Height" Value="30" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="0,0,1,0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Focusable" Value="False" />
+      <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="4"
+                    SnapsToDevicePixels="True">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.38" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="ViewModeToggle" TargetType="ToggleButton">
+      <Setter Property="Width" Value="30" />
+      <Setter Property="Height" Value="30" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Focusable" Value="False" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="Bd"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="3"
+                    SnapsToDevicePixels="True">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+              </Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+              </Trigger>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="IsChecked" Value="True" />
+                  <Condition Property="IsMouseOver" Value="True" />
+                </MultiTrigger.Conditions>
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+              </MultiTrigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.38" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="PaneHeader" TargetType="TextBlock">
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+      <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+    <Style x:Key="FieldLabel" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Margin" Value="0,0,0,3" />
+    </Style>
+    <Style x:Key="MutedText" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+      <Setter Property="FontSize" Value="11" />
+    </Style>
+    <Style x:Key="ToolboxItemBtn" TargetType="Button">
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Padding" Value="8,6" />
+      <Setter Property="Margin" Value="0,0,0,2" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+          <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+  </UserControl.Resources>
+
+  <Grid Background="{DynamicResource ApplicationBackgroundBrush}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <!-- Toolbar -->
+    <Border x:Name="ToolbarBorder"
+            Grid.Row="0"
+            Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,0,0,1"
+            Padding="8,4">
+      <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+          <Button x:Name="UndoBtn" Style="{StaticResource ToolIconBtn}" Click="Undo_Click" ToolTip="Undo (Ctrl+Z)">
+            <ui:SymbolIcon Symbol="ArrowUndo24" FontSize="16" />
+          </Button>
+          <Button x:Name="RedoBtn" Style="{StaticResource ToolIconBtn}" Click="Redo_Click" ToolTip="Redo (Ctrl+Y)">
+            <ui:SymbolIcon Symbol="ArrowRedo24" FontSize="16" />
+          </Button>
+          <Rectangle x:Name="ToolbarSep1" Width="1" Height="18" Fill="{DynamicResource CardStrokeColorDefaultBrush}"
+                     Margin="4,0,5,0" VerticalAlignment="Center" Opacity="0.7" />
+          <Button x:Name="DeleteBtn" Style="{StaticResource ToolIconBtn}" Click="Delete_Click" ToolTip="Delete">
+            <ui:SymbolIcon Symbol="Delete24" FontSize="16" />
+          </Button>
+          <Button x:Name="ExprBtn" Style="{StaticResource ToolIconBtn}" Click="Expression_Click" ToolTip="Expression…">
+            <ui:SymbolIcon Symbol="MathFormula24" FontSize="16" />
+          </Button>
+          <Rectangle x:Name="ToolbarSep2" Width="1" Height="18" Fill="{DynamicResource CardStrokeColorDefaultBrush}"
+                     Margin="4,0,5,0" VerticalAlignment="Center" Opacity="0.7" />
+          <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  CornerRadius="5"
+                  Padding="2"
+                  Margin="0,0,2,0"
+                  Background="{DynamicResource ControlFillColorDefaultBrush}">
+            <StackPanel Orientation="Horizontal">
+              <ToggleButton x:Name="DesignModeBtn"
+                            Style="{StaticResource ViewModeToggle}"
+                            IsChecked="True"
+                            Click="DesignMode_Click"
+                            ToolTip="Design view">
+                <ui:SymbolIcon Symbol="DesignIdeas24" FontSize="15" />
+              </ToggleButton>
+              <ToggleButton x:Name="XmlModeBtn"
+                            Style="{StaticResource ViewModeToggle}"
+                            Click="XmlMode_Click"
+                            ToolTip="XML view (live sync with design)">
+                <ui:SymbolIcon Symbol="Code24" FontSize="15" />
+              </ToggleButton>
+            </StackPanel>
+          </Border>
+          <Button x:Name="ApplyXmlBtn"
+                  Style="{StaticResource ToolIconBtn}"
+                  Click="ApplyXml_Click"
+                  Visibility="Collapsed"
+                  ToolTip="Apply XML now (Ctrl+Enter)">
+            <ui:SymbolIcon Symbol="Checkmark24" FontSize="16" />
+          </Button>
+          <Rectangle x:Name="ToolbarSep3" Width="1" Height="18" Fill="{DynamicResource CardStrokeColorDefaultBrush}"
+                     Margin="4,0,5,0" VerticalAlignment="Center" Opacity="0.7" />
+          <Button x:Name="ZoomOutBtn" Style="{StaticResource ToolIconBtn}" Click="ZoomOut_Click" ToolTip="Zoom out (Ctrl+−)">
+            <ui:SymbolIcon Symbol="ZoomOut24" FontSize="16" />
+          </Button>
+          <Button x:Name="ZoomResetBtn"
+                  MinWidth="48"
+                  Height="30"
+                  Padding="6,0"
+                  Margin="0,0,1,0"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  Cursor="Hand"
+                  Focusable="False"
+                  Click="ZoomReset_Click"
+                  ToolTip="Reset zoom to 100%">
+            <TextBlock x:Name="ZoomPercentText" Text="100%" FontSize="11" VerticalAlignment="Center" />
+          </Button>
+          <Button x:Name="ZoomInBtn" Style="{StaticResource ToolIconBtn}" Click="ZoomIn_Click" ToolTip="Zoom in (Ctrl++)">
+            <ui:SymbolIcon Symbol="ZoomIn24" FontSize="16" />
+          </Button>
+        </StackPanel>
+        <TextBlock x:Name="ToolbarHint"
+                   DockPanel.Dock="Right"
+                   VerticalAlignment="Center"
+                   Style="{StaticResource MutedText}"
+                   Text="Drag toolbox items onto the surface · Ctrl+click multi-select · Ctrl+wheel zoom · right-click for menus" />
+      </DockPanel>
+    </Border>
+
+    <Grid Grid.Row="1" x:Name="MainLayoutGrid">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="240" MinWidth="200" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" MinWidth="280" />
+        <ColumnDefinition x:Name="PropertiesSplitterColumn" Width="0" />
+        <ColumnDefinition x:Name="PropertiesColumn" Width="0" />
+      </Grid.ColumnDefinitions>
+
+      <!-- Left: Toolbox / Data / Parameters -->
+      <Border x:Name="LeftPane"
+              Grid.Column="0"
+              Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="0,0,1,0">
+        <DockPanel>
+          <TabControl x:Name="LeftTabs"
+                      BorderThickness="0"
+                      Background="Transparent"
+                      Padding="0"
+                      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+            <TabItem Header="Toolbox">
+              <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8,10">
+                <StackPanel x:Name="ToolboxPanel">
+                  <TextBlock Text="Report Items"
+                             Style="{StaticResource PaneHeader}"
+                             Margin="4,0,0,4" />
+                  <TextBlock x:Name="ToolboxHint"
+                             Text="Drag an item onto the design surface, or click to insert."
+                             TextWrapping="Wrap"
+                             Style="{StaticResource MutedText}"
+                             Margin="4,0,4,10" />
+                </StackPanel>
+              </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Data">
+              <DockPanel Margin="8">
+                <TextBlock DockPanel.Dock="Top"
+                           Text="Datasets &amp; fields"
+                           Style="{StaticResource PaneHeader}" />
+                <TextBlock DockPanel.Dock="Top"
+                           Text="Double-click a field to insert a bound textbox. With a textbox selected, double-click binds the field."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource MutedText}"
+                           Margin="0,0,0,8" />
+                <TreeView x:Name="DataTree"
+                          BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                          BorderThickness="1"
+                          Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                          MouseDoubleClick="DataTree_MouseDoubleClick" />
+              </DockPanel>
+            </TabItem>
+            <TabItem Header="Parameters">
+              <DockPanel Margin="8">
+                <TextBlock DockPanel.Dock="Top" Text="Report parameters" Style="{StaticResource PaneHeader}" />
+                <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                  <TextBlock Text="Data type" Style="{StaticResource FieldLabel}" />
+                  <ComboBox x:Name="ParamTypeBox" Margin="0,0,0,6">
+                    <ComboBoxItem Content="String" />
+                    <ComboBoxItem Content="Boolean" />
+                    <ComboBoxItem Content="DateTime" />
+                    <ComboBoxItem Content="Integer" />
+                    <ComboBoxItem Content="Float" />
+                  </ComboBox>
+                  <TextBlock Text="Prompt" Style="{StaticResource FieldLabel}" />
+                  <TextBox x:Name="ParamPromptBox" Margin="0,0,0,6" />
+                  <TextBlock Text="Default value" Style="{StaticResource FieldLabel}" />
+                  <TextBox x:Name="ParamDefaultBox" Margin="0,0,0,6" />
+                  <CheckBox x:Name="ParamNullableBox" Content="Nullable" Margin="0,0,0,4" />
+                  <CheckBox x:Name="ParamAllowBlankBox" Content="Allow blank" Margin="0,0,0,8" />
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="NewParamName" Grid.Column="0" Margin="0,0,6,0" />
+                    <Button Grid.Column="1" Content="Add" Padding="10,4" Click="AddParameter_Click" />
+                  </Grid>
+                  <Button Content="Remove selected" Margin="0,6,0,0" Padding="10,4" Click="RemoveParameter_Click" />
+                  <Button Content="Apply edits" Margin="0,6,0,0" Padding="10,4" Click="ApplyParameter_Click" />
+                </StackPanel>
+                <ListBox x:Name="ParametersList"
+                         BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                         Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                         Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                         SelectionChanged="ParametersList_SelectionChanged" />
+              </DockPanel>
+            </TabItem>
+          </TabControl>
+        </DockPanel>
+      </Border>
+
+      <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" Background="Transparent" />
+
+      <!-- Design surface / XML view -->
+      <Grid Grid.Column="2">
+        <!-- Desk + rulers around the white paper page -->
+        <Grid x:Name="DesignChrome">
+          <Grid.RowDefinitions>
+            <RowDefinition x:Name="RulerTopRow" Height="22" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="RulerLeftColumn" Width="22" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+
+          <Border x:Name="RulerCorner"
+                  Grid.Row="0" Grid.Column="0"
+                  Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                  BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="0,0,1,1" />
+
+          <surface:DesignerRuler x:Name="HorizontalRuler"
+                                 Grid.Row="0" Grid.Column="1"
+                                 Orientation="Horizontal"
+                                 ClipToBounds="True" />
+
+          <surface:DesignerRuler x:Name="VerticalRuler"
+                                 Grid.Row="1" Grid.Column="0"
+                                 Orientation="Vertical"
+                                 ClipToBounds="True" />
+
+          <ScrollViewer x:Name="DesignScrollViewer"
+                        Grid.Row="1" Grid.Column="1"
+                        HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto"
+                        Padding="16"
+                        AllowDrop="True"
+                        ScrollChanged="DesignScrollViewer_ScrollChanged"
+                        PreviewMouseWheel="DesignScrollViewer_PreviewMouseWheel">
+            <ContentControl x:Name="SurfaceHost"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            SizeChanged="SurfaceHost_SizeChanged" />
+          </ScrollViewer>
+        </Grid>
+
+        <Border x:Name="XmlPane"
+                Background="{DynamicResource ApplicationBackgroundBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0"
+                Visibility="Collapsed">
+          <DockPanel>
+            <Border x:Name="XmlHeader"
+                    DockPanel.Dock="Top"
+                    Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="10,6">
+              <DockPanel>
+                <TextBlock x:Name="XmlHeaderText"
+                           DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource MutedText}"
+                           Text="RDLC XML · edits apply to the design preview automatically when valid" />
+                <TextBlock x:Name="XmlStatusText"
+                           DockPanel.Dock="Right"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource MutedText}"
+                           HorizontalAlignment="Right" />
+              </DockPanel>
+            </Border>
+            <avalonEdit:TextEditor x:Name="XmlEditor"
+                                   FontFamily="Cascadia Mono, Consolas, Courier New"
+                                   FontSize="13"
+                                   ShowLineNumbers="True"
+                                   WordWrap="False"
+                                   HorizontalScrollBarVisibility="Auto"
+                                   VerticalScrollBarVisibility="Auto" />
+          </DockPanel>
+        </Border>
+      </Grid>
+
+      <GridSplitter x:Name="PropertiesSplitter"
+                    Grid.Column="3"
+                    Width="4"
+                    HorizontalAlignment="Center"
+                    Background="Transparent"
+                    Visibility="Collapsed" />
+
+      <!-- Properties: visible only when a report item is selected -->
+      <Border x:Name="PropertiesPane"
+              Grid.Column="4"
+              Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="1,0,0,0"
+              Visibility="Collapsed">
+        <ContentControl x:Name="PropertyHost" />
+      </Border>
+    </Grid>
+
+    <Border x:Name="StatusBar"
+            Grid.Row="2"
+            Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="10,5">
+      <TextBlock x:Name="StatusText"
+                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                 FontSize="11"
+                 Text="Ready" />
+    </Border>
+  </Grid>
+</UserControl>

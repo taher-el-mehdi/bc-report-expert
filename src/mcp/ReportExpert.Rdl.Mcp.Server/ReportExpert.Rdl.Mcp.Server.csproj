@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>rdlc-mcp</AssemblyName>
+    <RootNamespace>ReportExpert.Rdl.Mcp.Server</RootNamespace>
+    <Description>Model Context Protocol server exposing RDLC inspection and editing tools over stdio.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>rdlc-mcp</ToolCommandName>
+    <PackageType>McpServer</PackageType>
+    <PackageId>ReportExpert.Rdl.Mcp</PackageId>
+    <PackageTags>mcp;rdlc;rdl;reporting;ai</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/taher-el-mehdi/bc-report-expert</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/taher-el-mehdi/bc-report-expert</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReportExpert.Rdl.Core\ReportExpert.Rdl.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".mcp\server.json" Pack="true" PackagePath="\.mcp\server.json" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReportExpert.Rdl.Mcp.Server.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ReportExpert.Mcp.Client</RootNamespace>
+    <Description>Host-side abstraction over one or more MCP servers. Deliberately has no reference to any specific MCP server project.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ReportExpert.Mcp.Client.Tests" />
+  </ItemGroup>
+
+</Project>

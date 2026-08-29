@@ -1,0 +1,53 @@
+<ui:FluentWindow x:Class="ReportExpert.Infrastructure.Views.Dialogs.ErrorDialog"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 Title="Error"
+                 Width="520"
+                 Height="420"
+                 WindowStartupLocation="CenterOwner"
+                 ResizeMode="NoResize"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0"
+                     Title="Error"
+                     ShowMinimize="False"
+                     ShowMaximize="False"
+                     ShowClose="True" />
+
+        <Grid Grid.Row="1" Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                <TextBlock x:Name="ProblemText" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock x:Name="DescriptionText" Margin="0,8,0,0" TextWrapping="Wrap" Opacity="0.85" />
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="Possible solution" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <TextBlock x:Name="SolutionText" TextWrapping="Wrap" Margin="0,0,0,16" Opacity="0.85" />
+                    <Expander Header="Technical details">
+                        <TextBox x:Name="TechnicalText" IsReadOnly="True" TextWrapping="Wrap"
+                                 BorderThickness="0" Background="Transparent"
+                                 FontFamily="Consolas" FontSize="11" MaxHeight="160" />
+                    </Expander>
+                </StackPanel>
+            </ScrollViewer>
+
+            <ui:Button Grid.Row="2" HorizontalAlignment="Right" Margin="0,16,0,0"
+                       Content="Close" Click="Close_Click" />
+        </Grid>
+    </Grid>
+</ui:FluentWindow>

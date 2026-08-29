@@ -1,0 +1,172 @@
+<ui:FluentWindow x:Class="ReportExpert.Modules.Preview.Views.Dialogs.RdlcPreviewWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 xmlns:helpers="clr-namespace:ReportExpert.Modules.Preview.Helpers"
+                 xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+                 Title="{Binding ReportTitle}"
+                 Width="1100"
+                 Height="780"
+                 MinWidth="800"
+                 MinHeight="520"
+                 WindowStartupLocation="CenterOwner"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica">
+
+    <ui:FluentWindow.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
+        <helpers:InverseBoolConverter x:Key="InverseBool" />
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0"
+                     Title="Report preview"
+                     ShowMinimize="False"
+                     ShowMaximize="True"
+                     ShowClose="True" />
+
+        <!-- Toolbar -->
+        <Border Grid.Row="1"
+                Padding="16,10"
+                BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ReportTitle}"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding ReportDetails}"
+                               FontSize="12"
+                               Opacity="0.6"
+                               Margin="0,2,0,0"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:Button Appearance="Secondary"
+                               Margin="0,0,8,0"
+                               Padding="12,8"
+                               Command="{Binding GeneratePdfCommand}"
+                               IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
+                               ToolTip="Regenerate preview (uses same-name .json when present)">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="ArrowSync24" Margin="0,0,6,0" />
+                            <TextBlock Text="Refresh" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ui:Button>
+                    <ui:Button Appearance="Primary"
+                               Padding="12,8"
+                               Command="{Binding DownloadPdfCommand}"
+                               ToolTip="Save a copy of the PDF">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="ArrowDownload24" Margin="0,0,6,0" />
+                            <TextBlock Text="Download PDF" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </ui:Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Preview area -->
+        <Grid Grid.Row="2">
+            <wv2:WebView2 x:Name="PdfViewer"
+                          Visibility="Collapsed" />
+
+            <Border Background="{DynamicResource ApplicationBackgroundBrush}"
+                    Visibility="{Binding HasPreview, Converter={StaticResource InverseBoolToVis}}">
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            MaxWidth="440">
+                    <ui:SymbolIcon Symbol="Document24"
+                                   FontSize="56"
+                                   Opacity="0.28"
+                                   HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding StatusMessage}"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,16,0,0"
+                               HorizontalAlignment="Center"
+                               Opacity="0.8"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center" />
+                    <TextBlock Text="Sample data is generated automatically so you can preview the layout."
+                               FontSize="13"
+                               Opacity="0.5"
+                               Margin="0,8,0,0"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"
+                               Visibility="{Binding HasError, Converter={StaticResource InverseBoolToVis}}" />
+                </StackPanel>
+            </Border>
+
+            <Border Margin="16"
+                    Padding="14"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Stretch"
+                    CornerRadius="8"
+                    Background="#33E81123"
+                    Visibility="{Binding HasError, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           TextWrapping="Wrap"
+                           Foreground="#FFE81123" />
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="3"
+                Padding="16,8"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Opacity="0.75"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding GenerationSummary}"
+                               Opacity="0.45"
+                               FontSize="11"
+                               Margin="0,2,0,0"
+                               TextTrimming="CharacterEllipsis"
+                               Visibility="{Binding HasPreview, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+                <ui:ProgressRing Grid.Column="1"
+                                 Width="18" Height="18"
+                                 IsIndeterminate="True"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
+            </Grid>
+        </Border>
+
+        <Border Grid.RowSpan="4"
+                Background="#66000000"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ui:ProgressRing Width="44" Height="44" IsIndeterminate="True" />
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="White"
+                           Margin="0,12,0,0"
+                           FontSize="14" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</ui:FluentWindow>

@@ -1,0 +1,10 @@
+{
+  "servers": [
+    {
+      "id": "rdl",
+      "command": "%LOCALAPPDATA%\\ReportExpert\\mcp\\rdlc\\rdlc-mcp.exe",
+      "args": [],
+      "enabled": true
+    }
+  ]
+}

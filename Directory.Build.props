@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <!-- Default TFM; WPF/WinForms projects override to net10.0-windows. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Authors>TAHER El Mehdi</Authors>
+    <Company>Report Expert</Company>
+    <Copyright>Copyright (c) 2026 TAHER El Mehdi</Copyright>
+    <Version>1.0.0</Version>
+    <!-- Friendly label used in UI, installer, and artifact file names (v1.0 Marmoset). -->
+    <VersionDisplay>1.0</VersionDisplay>
+    <VersionCodename>Marmoset</VersionCodename>
+    <InformationalVersion>1.0 (Marmoset)</InformationalVersion>
+    <Product>Report Expert</Product>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
+</Project>

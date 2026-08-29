@@ -1,0 +1,299 @@
+<UserControl x:Class="ReportExpert.Modules.Preview.Views.PreviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:helpers="clr-namespace:ReportExpert.Modules.Preview.Helpers"
+             AllowDrop="True"
+             PreviewDragOver="View_PreviewDragOver"
+             PreviewDrop="View_PreviewDrop">
+
+    <UserControl.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <helpers:InverseBoolConverter x:Key="InverseBoolConverter" />
+        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Padding="12,8" BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+            <WrapPanel>
+                <ui:Button Margin="0,0,6,0" ToolTip="Open RDLC layout"
+                           Command="{Binding OpenRdlcCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="FolderOpen24" Margin="0,0,6,0" />
+                        <TextBlock Text="Open" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="0,0,6,0" ToolTip="Reload layout"
+                           Command="{Binding ReloadCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ArrowClockwise24" Margin="0,0,6,0" />
+                        <TextBlock Text="Reload" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="0,0,6,0" ToolTip="Generate sample data"
+                           Command="{Binding GenerateDataCommand}"
+                           IsEnabled="{Binding IsRdlcLayout}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Database24" Margin="0,0,6,0" />
+                        <TextBlock Text="Generate Data" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="0,0,6,0" ToolTip="Refresh preview"
+                           Command="{Binding RefreshPreviewCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ArrowSync24" Margin="0,0,6,0" />
+                        <TextBlock Text="Preview" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="0,0,6,0" ToolTip="Open again in Excel or Word"
+                           Command="{Binding OpenExternallyCommand}"
+                           Visibility="{Binding IsOfficeLayout, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Open24" Margin="0,0,6,0" />
+                        <TextBlock Text="Open Externally" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="0,0,6,0" ToolTip="Edit this layout on Home"
+                           Command="{Binding EditOnHomeCommand}"
+                           Visibility="{Binding IsOfficeLayout, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Edit24" Margin="0,0,6,0" />
+                        <TextBlock Text="Edit on Home" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+
+                <Separator Margin="6,0" Width="1" Height="24"
+                           Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}" />
+
+                <ui:Button Margin="6,0,6,0" ToolTip="Export PDF"
+                           Command="{Binding ExportCommand}" CommandParameter="Pdf"
+                           Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Document24" Margin="0,0,6,0" />
+                        <TextBlock Text="PDF" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="0,0,6,0" ToolTip="Export Excel"
+                           Command="{Binding ExportCommand}" CommandParameter="Excel"
+                           Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Table24" Margin="0,0,6,0" />
+                        <TextBlock Text="Excel" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="0,0,6,0" ToolTip="Export Word"
+                           Command="{Binding ExportCommand}" CommandParameter="Word"
+                           Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="DocumentText24" Margin="0,0,6,0" />
+                        <TextBlock Text="Word" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="0,0,6,0" ToolTip="Print"
+                           Command="{Binding PrintCommand}"
+                           Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Print24" Margin="0,0,6,0" />
+                        <TextBlock Text="Print" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+
+                <Separator Margin="6,0" Width="1" Height="24"
+                           Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}" />
+
+                <ui:Button Margin="6,0,6,0" Command="{Binding PreviousPageCommand}" Content="&lt;" Width="28"
+                           Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}" />
+                <ui:Button Margin="0,0,6,0" Command="{Binding NextPageCommand}" Content="&gt;" Width="28"
+                           Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}" />
+                <ui:Button Margin="0,0,6,0" Command="{Binding LastPageCommand}" Content="&gt;|" Width="28"
+                           Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}" />
+            </WrapPanel>
+        </Border>
+
+        <!-- Main content -->
+        <Grid Grid.Row="1" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280" MinWidth="220" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" MinWidth="300" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Left sidebar -->
+            <Border Grid.Column="0" Padding="12"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="0,0,1,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Border CornerRadius="8" Padding="10" Margin="0,0,0,12"
+                                Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}">
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Opacity="0.8"
+                                       Text="RDLC: in-app data preview. Excel/Word: opens externally — edit layouts on Home." />
+                        </Border>
+
+                        <!-- RDLC dataset / parameter tools -->
+                        <StackPanel Visibility="{Binding IsRdlcLayout, Converter={StaticResource BoolToVis}}">
+                            <Expander Header="Dataset Explorer" IsExpanded="True" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TreeView x:Name="ExplorerTree"
+                                              ItemsSource="{Binding ExplorerItems}"
+                                              SelectedItemChanged="ExplorerTree_SelectedItemChanged"
+                                              MaxHeight="180">
+                                        <TreeView.ItemTemplate>
+                                            <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}">
+                                                <TextBlock Text="{Binding Name, Mode=OneWay}" />
+                                            </HierarchicalDataTemplate>
+                                        </TreeView.ItemTemplate>
+                                    </TreeView>
+
+                                    <WrapPanel Margin="0,8,0,0">
+                                        <ui:Button Margin="0,0,6,6" Content="Import"
+                                                   Command="{Binding ImportDataCommand}"
+                                                   ToolTip="Import XML, JSON, or CSV matching the dataset schema" />
+                                        <ui:Button Margin="0,0,6,6" Content="Dummy"
+                                                   Command="{Binding UseDummyDataCommand}"
+                                                   ToolTip="Switch back to generated sample data" />
+                                        <ui:Button Margin="0,0,6,6" Content="Refresh"
+                                                   Command="{Binding GenerateDataCommand}" />
+                                        <ui:Button Margin="0,0,6,6" Content="Schema"
+                                                   Command="{Binding CopySchemaCommand}" />
+                                        <ui:Button Margin="0,0,6,6" Content="JSON"
+                                                   Command="{Binding ExportDataJsonCommand}" />
+                                        <ui:Button Margin="0,0,6,6" Content="XML"
+                                                   Command="{Binding ExportDataXmlCommand}" />
+                                        <ui:Button Margin="0,0,6,6" Content="CSV"
+                                                   Command="{Binding ExportDataCsvCommand}" />
+                                    </WrapPanel>
+
+                                    <TextBlock Text="{Binding DataSourceDisplay, Mode=OneWay}"
+                                               FontSize="11" Opacity="0.7" Margin="0,4,0,0" />
+
+                                    <DataGrid ItemsSource="{Binding SelectedDataView, Mode=OneWay}"
+                                              AutoGenerateColumns="True"
+                                              IsReadOnly="True"
+                                              MaxHeight="140"
+                                              Margin="0,8,0,0"
+                                              CanUserAddRows="False" />
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander Header="Parameters" IsExpanded="True">
+                                <ItemsControl ItemsSource="{Binding ParameterEditors}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,0,0,10">
+                                                <TextBlock Text="{Binding Info.Name, Mode=OneWay}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                                                <TextBox Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Visibility="{Binding IsText, Converter={StaticResource BoolToVis}, Mode=OneWay}" />
+                                                <DatePicker SelectedDate="{Binding DateValue, Mode=TwoWay}"
+                                                            Visibility="{Binding IsDate, Converter={StaticResource BoolToVis}, Mode=OneWay}" />
+                                                <CheckBox IsChecked="{Binding BoolValue, Mode=TwoWay}"
+                                                          Visibility="{Binding IsBoolean, Converter={StaticResource BoolToVis}, Mode=OneWay}" />
+                                                <ComboBox ItemsSource="{Binding Info.ValidValues, Mode=OneWay}"
+                                                          SelectedItem="{Binding SelectedComboValue, Mode=TwoWay}"
+                                                          Visibility="{Binding IsCombo, Converter={StaticResource BoolToVis}, Mode=OneWay}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Expander>
+                        </StackPanel>
+
+                        <!-- Office: external preview info -->
+                        <StackPanel Visibility="{Binding IsOfficeLayout, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Excel / Word preview" FontWeight="SemiBold" Margin="0,0,0,8" />
+                            <TextBlock Text="{Binding OfficeExternalFileName}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Opacity="0.7"
+                                       Text="Preview opens the layout in Microsoft Excel or Word. Edit Excel on Home (ReoGrid); preview Word on Home (Open XML) or edit in Word." />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+
+            <!-- Layout preview (full remaining width).
+                 IMPORTANT: never Collapse the ReportViewer/WindowsFormsHost — that can native-crash the process.
+                 Keep PreviewHost always present; overlay Office/empty surfaces on top. -->
+            <Grid Grid.Column="2">
+                <ContentControl x:Name="PreviewHost" />
+
+                <Border Background="{DynamicResource ApplicationBackgroundBrush}"
+                        Visibility="{Binding IsOfficeLayout, Converter={StaticResource BoolToVis}}">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="420">
+                        <ui:SymbolIcon Symbol="Open24" FontSize="48" Opacity="0.4" HorizontalAlignment="Center" />
+                        <TextBlock Text="Excel / Word: no in-app data preview"
+                                   FontSize="16" Opacity="0.7" Margin="0,12,0,0"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding OfficeExternalFileName}"
+                                   FontSize="13" Opacity="0.55" Margin="0,8,0,0"
+                                   TextAlignment="Center" TextWrapping="Wrap"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="Generate Data / ReportViewer only work for RDLC. Edit layouts on Home, or open the file in Excel/Word."
+                                   FontSize="12" Opacity="0.45" Margin="0,12,0,0"
+                                   HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+                        <ui:Button Margin="0,20,0,0"
+                                   Appearance="Primary"
+                                   HorizontalAlignment="Center"
+                                   Command="{Binding OpenExternallyCommand}"
+                                   Content="Open Externally" />
+                        <ui:Button Margin="0,10,0,0"
+                                   Appearance="Secondary"
+                                   HorizontalAlignment="Center"
+                                   Command="{Binding EditOnHomeCommand}"
+                                   Content="Edit on Home" />
+                    </StackPanel>
+                </Border>
+
+                <Border Visibility="{Binding HasReport, Converter={StaticResource InverseBoolToVis}}"
+                        Background="{DynamicResource ApplicationBackgroundBrush}">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <ui:SymbolIcon Symbol="Document24" FontSize="48" Opacity="0.4" />
+                        <TextBlock Text="Open an RDLC layout for data preview"
+                                   FontSize="16" Opacity="0.6" Margin="0,12,0,0" />
+                        <TextBlock Text="Excel/Word open externally · edit those layouts on Home"
+                                   FontSize="12" Opacity="0.45" Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- Status bar -->
+        <Border Grid.Row="2" Padding="12,6"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding PageInfo}" Margin="16,0" VerticalAlignment="Center" />
+                <ui:ProgressRing Grid.Column="2" Width="20" Height="20"
+                                 IsIndeterminate="True"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
+            </Grid>
+        </Border>
+
+        <!-- Loading overlay -->
+        <Border Grid.RowSpan="3"
+                Background="#66000000"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ui:ProgressRing IsIndeterminate="True" Width="48" Height="48" />
+                <TextBlock Text="{Binding StatusMessage}" Foreground="White"
+                           Margin="0,12,0,0" FontSize="14" />
+            </StackPanel>
+        </Border>
+
+        <ui:SnackbarPresenter x:Name="SnackbarPresenter" Grid.RowSpan="3" />
+    </Grid>
+</UserControl>

@@ -1,0 +1,70 @@
+<Window x:Class="ReportExpert.RdlcDesigner.Views.ExpressionEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Expression Editor"
+        Height="480"
+        Width="720"
+        WindowStartupLocation="CenterOwner"
+        Background="#F7F7F5"
+        FontFamily="Segoe UI">
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="220" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
+               Text="Build or edit an RDL expression. Fields and parameters insert at the caret."
+               Foreground="#555555"
+               Margin="0,0,0,12"
+               TextWrapping="Wrap" />
+
+    <Border Grid.Row="1" Grid.Column="0"
+            BorderBrush="#DDDDDD"
+            BorderThickness="1"
+            Background="White"
+            Margin="0,0,12,0">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Top"
+                   Text="Categories"
+                   FontWeight="SemiBold"
+                   Margin="10,8,10,4" />
+        <TreeView x:Name="CategoryTree"
+                  BorderThickness="0"
+                  MouseDoubleClick="CategoryTree_MouseDoubleClick" />
+      </DockPanel>
+    </Border>
+
+    <DockPanel Grid.Row="1" Grid.Column="1">
+      <TextBlock DockPanel.Dock="Top" Text="Expression" FontWeight="SemiBold" Margin="0,0,0,6" />
+      <TextBox x:Name="ExpressionBox"
+               AcceptsReturn="True"
+               TextWrapping="Wrap"
+               FontFamily="Consolas"
+               FontSize="13"
+               VerticalScrollBarVisibility="Auto"
+               SpellCheck.IsEnabled="False"
+               Padding="8" />
+    </DockPanel>
+
+    <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,12,0,0">
+      <Button Content="Fields!…Value" Margin="0,0,8,0" Padding="10,4" Click="InsertFields_Click" />
+      <Button Content="Parameters!…Value" Margin="0,0,8,0" Padding="10,4" Click="InsertParams_Click" />
+      <Button Content="Globals!PageNumber" Margin="0,0,8,0" Padding="10,4" Click="InsertGlobals_Click" />
+    </StackPanel>
+
+    <StackPanel Grid.Row="3" Grid.ColumnSpan="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Margin="0,16,0,0">
+      <Button Content="Cancel" Width="88" Margin="0,0,8,0" IsCancel="True" Click="Cancel_Click" />
+      <Button Content="OK" Width="88" IsDefault="True" Click="Ok_Click" />
+    </StackPanel>
+  </Grid>
+</Window>

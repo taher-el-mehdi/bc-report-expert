@@ -1,0 +1,9 @@
+{
+  "Provider": "Groq",
+  "ApiKey": "",
+  "Model": "llama-3.3-70b-versatile",
+  "BaseUrl": "https://api.groq.com/openai/v1",
+  "AzureDeployment": "",
+  "AgentModeEnabled": false,
+  "DisabledMcpTools": []
+}

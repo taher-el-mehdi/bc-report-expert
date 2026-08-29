@@ -1,0 +1,57 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "name": "io.github.taher-el-mehdi/rdlc-mcp",
+  "description": "Inspect and edit Microsoft RDLC report definitions: datasets, fields, parameters, tablix columns, page setup and validation.",
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "nuget",
+      "registryBaseUrl": "https://api.nuget.org",
+      "identifier": "ReportExpert.Rdl.Mcp",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [],
+      "environmentVariables": [
+        {
+          "name": "RDLC_MCP_ALLOWED_ROOTS",
+          "value": "{rdlc_mcp_allowed_roots}",
+          "variables": {
+            "rdlc_mcp_allowed_roots": {
+              "description": "Optional. Path-separated list of directories the server may open. Leave empty to allow any readable path.",
+              "isRequired": false,
+              "isSecret": false
+            }
+          }
+        },
+        {
+          "name": "RDLC_MCP_BACKUPS",
+          "value": "{rdlc_mcp_backups}",
+          "variables": {
+            "rdlc_mcp_backups": {
+              "description": "Optional. Set to 'false' to disable the automatic timestamped backup taken before every write. Leave empty to keep backups on.",
+              "isRequired": false,
+              "isSecret": false
+            }
+          }
+        },
+        {
+          "name": "RDLC_MCP_BACKUP_RETENTION",
+          "value": "{rdlc_mcp_backup_retention}",
+          "variables": {
+            "rdlc_mcp_backup_retention": {
+              "description": "Optional. How many backups to keep per report (default: 20). Leave empty for the default.",
+              "isRequired": false,
+              "isSecret": false
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/taher-el-mehdi/bc-report-expert",
+    "source": "github"
+  }
+}

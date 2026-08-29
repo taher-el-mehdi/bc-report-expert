@@ -1,0 +1,43 @@
+<Solution>
+  <Folder Name="/src/app/">
+    <Project Path="src/ReportExpert.App/ReportExpert.App.csproj" />
+  </Folder>
+  <Folder Name="/src/modules/">
+    <Project Path="src/ReportExpert.Modules.Preview/ReportExpert.Modules.Preview.csproj" />
+    <Project Path="src/ReportExpert.Modules.Copilot/ReportExpert.Modules.Copilot.csproj" />
+    <Project Path="src/ReportExpert.Modules.Localization/ReportExpert.Modules.Localization.csproj" />
+  </Folder>
+  <Folder Name="/src/core/">
+    <Project Path="src/ReportExpert.Core/ReportExpert.Core.csproj" />
+    <Project Path="src/ReportExpert.Domain/ReportExpert.Domain.csproj" />
+    <Project Path="src/ReportExpert.Application/ReportExpert.Application.csproj" />
+    <Project Path="src/ReportExpert.Common/ReportExpert.Common.csproj" />
+    <Project Path="src/ReportExpert.Shared/ReportExpert.Shared.csproj" />
+    <Project Path="src/ReportExpert.Editors/ReportExpert.Editors.csproj" />
+    <Project Path="src/ReportExpert.Infrastructure/ReportExpert.Infrastructure.csproj" />
+    <Project Path="src/ReportExpert.Plugins/ReportExpert.Plugins.csproj" />
+  </Folder>
+  <Folder Name="/src/reporting/">
+    <Project Path="src/ReportExpert.Reporting.DummyData/ReportExpert.Reporting.DummyData.csproj" />
+    <Project Path="src/ReportExpert.Reporting.Export/ReportExpert.Reporting.Export.csproj" />
+    <Project Path="src/ReportExpert.Reporting.Expressions/ReportExpert.Reporting.Expressions.csproj" />
+    <Project Path="src/ReportExpert.Reporting.Parser/ReportExpert.Reporting.Parser.csproj" />
+    <Project Path="src/ReportExpert.Reporting.Renderer/ReportExpert.Reporting.Renderer.csproj" />
+    <Project Path="src/ReportExpert.RdlcDesigner/ReportExpert.RdlcDesigner.csproj" />
+  </Folder>
+  <Folder Name="/src/mcp/">
+    <Project Path="src/mcp/ReportExpert.Rdl.Core/ReportExpert.Rdl.Core.csproj" />
+    <Project Path="src/mcp/ReportExpert.Rdl.Mcp.Server/ReportExpert.Rdl.Mcp.Server.csproj" />
+    <Project Path="src/mcp/ReportExpert.Mcp.Client/ReportExpert.Mcp.Client.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ReportExpert.Common.Tests/ReportExpert.Common.Tests.csproj" />
+    <Project Path="tests/ReportExpert.Modules.Preview.Tests/ReportExpert.Modules.Preview.Tests.csproj" />
+    <Project Path="tests/ReportExpert.Modules.Copilot.Tests/ReportExpert.Modules.Copilot.Tests.csproj" />
+    <Project Path="tests/ReportExpert.Reporting.Parser.Tests/ReportExpert.Reporting.Parser.Tests.csproj" />
+    <Project Path="tests/ReportExpert.RdlcDesigner.Tests/ReportExpert.RdlcDesigner.Tests.csproj" />
+    <Project Path="tests/ReportExpert.Rdl.Core.Tests/ReportExpert.Rdl.Core.Tests.csproj" />
+    <Project Path="tests/ReportExpert.Rdl.Mcp.Server.Tests/ReportExpert.Rdl.Mcp.Server.Tests.csproj" />
+    <Project Path="tests/ReportExpert.Mcp.Client.Tests/ReportExpert.Mcp.Client.Tests.csproj" />
+  </Folder>
+</Solution>

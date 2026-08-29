@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ReportExpert.Editors</RootNamespace>
+    <AssemblyName>ReportExpert.Editors</AssemblyName>
+    <Description>Reusable code editors with TextMate syntax highlighting.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="TextMateSharp" />
+    <PackageReference Include="TextMateSharp.Grammars" />
+    <PackageReference Include="WPF-UI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReportExpert.Common\ReportExpert.Common.csproj" />
+    <ProjectReference Include="..\ReportExpert.Core\ReportExpert.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Syntax\al.tmLanguage.json" />
+    <EmbeddedResource Include="Resources\Syntax\al.package.json" />
+  </ItemGroup>
+
+</Project>

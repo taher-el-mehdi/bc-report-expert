@@ -1,0 +1,459 @@
+<UserControl x:Class="ReportExpert.App.Home.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:editors="clr-namespace:ReportExpert.Editors.Editors;assembly=ReportExpert.Editors"
+             xmlns:helpers="clr-namespace:ReportExpert.Modules.Preview.Helpers;assembly=ReportExpert.Modules.Preview"
+             xmlns:rg="clr-namespace:unvell.ReoGrid;assembly=unvell.ReoGrid"
+             xmlns:copilot="clr-namespace:ReportExpert.Modules.Copilot.Views;assembly=ReportExpert.Modules.Copilot">
+
+    <UserControl.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource ApplicationBackgroundBrush}">
+
+        <!-- Welcome: no workspace -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Visibility="{Binding HasWorkspace, Converter={StaticResource InverseBoolToVis}}">
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        MaxWidth="520"
+                        Margin="32">
+
+                <Image x:Name="HomeLogo"
+                       Width="72" Height="72"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,16" />
+
+                <TextBlock Text="Report Expert"
+                           FontSize="28"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                <TextBlock Text="Open an AL extension folder to browse its report layouts (.rdlc, .rdl, .xlsx, .docx)."
+                           FontSize="14"
+                           Opacity="0.7"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           Margin="0,8,0,28"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                <ui:Button Appearance="Primary"
+                           HorizontalAlignment="Center"
+                           Padding="28,12"
+                           FontSize="15"
+                           Command="{Binding OpenProjectCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="FolderOpen24" FontSize="20" Margin="0,0,10,0" />
+                        <TextBlock Text="Open Project" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+
+                <Border Margin="0,36,0,0"
+                        Padding="0"
+                        Visibility="{Binding RecentProjects.Count, Converter={StaticResource RecentVisConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="Recent"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Opacity="0.65"
+                                   Margin="0,0,0,10"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                        <ItemsControl ItemsSource="{Binding RecentProjects}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="10,8"
+                                            Margin="0,0,0,4"
+                                            CornerRadius="6"
+                                            Cursor="Hand"
+                                            Background="Transparent"
+                                            MouseLeftButtonUp="RecentProject_Click">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background"
+                                                                Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Symbol="Folder24"
+                                                           FontSize="16"
+                                                           Margin="0,0,10,0"
+                                                           VerticalAlignment="Center"
+                                                           Opacity="0.7" />
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                <TextBlock Text="{Binding Path}"
+                                                           FontSize="11"
+                                                           Opacity="0.55"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Workspace: RDLC structure / Excel+Word editors / AL source -->
+        <Grid Visibility="{Binding HasWorkspace, Converter={StaticResource BoolToVis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Padding="16,12"
+                    BorderThickness="0,0,0,1"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    Visibility="{Binding HomeViewer.IsIdle, Converter={StaticResource InverseBoolToVis}}">
+                <DockPanel LastChildFill="True">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <ui:Button Margin="0,0,8,0"
+                                   Appearance="Secondary"
+                                   Command="{Binding HomeViewer.SaveCommand}"
+                                   Visibility="{Binding HomeViewer.CanSave, Converter={StaticResource BoolToVis}}"
+                                   ToolTip="Save layout changes">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Save24" Margin="0,0,8,0" />
+                                <TextBlock Text="Save" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </ui:Button>
+                        <ui:Button Margin="0,0,8,0"
+                                   Appearance="Secondary"
+                                   Command="{Binding HomeViewer.ReloadCommand}"
+                                   Visibility="{Binding HomeViewer.IsShowingLayout, Converter={StaticResource BoolToVis}}"
+                                   ToolTip="Reload layout from disk">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowClockwise24" Margin="0,0,8,0" />
+                                <TextBlock Text="Reload" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </ui:Button>
+                        <ui:Button Margin="0,0,8,0"
+                                   Appearance="Primary"
+                                   Command="{Binding HomeViewer.OpenInPreviewCommand}"
+                                   Visibility="{Binding HomeViewer.IsRdlcLayout, Converter={StaticResource BoolToVis}}"
+                                   ToolTip="Configure data and generate a PDF preview of this report">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Play24" Margin="0,0,8,0" />
+                                <TextBlock Text="Preview" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </ui:Button>
+                        <ui:Button Appearance="Secondary"
+                                   Command="{Binding HomeViewer.ToggleCopilotCommand}"
+                                   Visibility="{Binding HomeViewer.CanUseCopilot, Converter={StaticResource BoolToVis}}"
+                                   ToolTip="Chat with Rex about this layout">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Sparkle24" Margin="0,0,8,0" />
+                                <TextBlock Text="Rex" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </ui:Button>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <DockPanel>
+                            <Border DockPanel.Dock="Left"
+                                    Padding="8,2"
+                                    Margin="0,0,10,0"
+                                    CornerRadius="4"
+                                    Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HomeViewer.FormatDisplay}"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Opacity="0.85" />
+                            </Border>
+                            <TextBlock Text="{Binding HomeViewer.FileTitle}"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        </DockPanel>
+                        <TextBlock Text="{Binding HomeViewer.Summary}"
+                                   FontSize="12"
+                                   Opacity="0.6"
+                                   Margin="0,4,0,0"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   Visibility="{Binding HomeViewer.IsRdlcLayout, Converter={StaticResource InverseBoolToVis}}" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Visibility="{Binding HomeViewer.IsIdle, Converter={StaticResource BoolToVis}}">
+                    <ui:SymbolIcon Symbol="DocumentSearch24" FontSize="48" Opacity="0.35" />
+                    <TextBlock Text="Select a report or layout from the project"
+                               FontSize="16"
+                               Opacity="0.65"
+                               Margin="0,14,0,0"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="Reports show linked layouts underneath · Preview RDLC · Rex"
+                               FontSize="12"
+                               Opacity="0.45"
+                               Margin="0,6,0,0"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- RDLC Minimal layout designer (ReportExpert.RdlcDesigner) -->
+                <Grid Visibility="{Binding HomeViewer.IsRdlcLayout, Converter={StaticResource BoolToVis}}"
+                      Background="#FFC8C8C8"
+                      ClipToBounds="True"
+                      SizeChanged="RdlcLayoutScroll_SizeChanged">
+                    <ContentControl x:Name="RdlcVisualHost"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch" />
+
+                    <!-- Rex is applying layout edits: veil + floating sparkles -->
+                    <Border Background="#73101827"
+                            IsHitTestVisible="False"
+                            Visibility="{Binding HomeViewer.IsAgentEditing, Converter={StaticResource BoolToVis}}">
+                        <Border.Triggers>
+                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="AgentSparkleA"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         From="0.25" To="1" Duration="0:0:0.75"
+                                                         AutoReverse="True" />
+                                        <DoubleAnimation Storyboard.TargetName="AgentSparkleB"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         From="1" To="0.2" Duration="0:0:0.95"
+                                                         AutoReverse="True" BeginTime="0:0:0.15" />
+                                        <DoubleAnimation Storyboard.TargetName="AgentSparkleC"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         From="0.2" To="0.95" Duration="0:0:1.1"
+                                                         AutoReverse="True" BeginTime="0:0:0.35" />
+                                        <DoubleAnimation Storyboard.TargetName="AgentBadge"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         From="0.82" To="1" Duration="0:0:1.2"
+                                                         AutoReverse="True" />
+                                        <DoubleAnimation Storyboard.TargetName="FloatSparkle1"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                         From="0" To="-14" Duration="0:0:1.6"
+                                                         AutoReverse="True" />
+                                        <DoubleAnimation Storyboard.TargetName="FloatSparkle2"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                         From="-6" To="10" Duration="0:0:1.9"
+                                                         AutoReverse="True" BeginTime="0:0:0.3" />
+                                        <DoubleAnimation Storyboard.TargetName="FloatSparkle3"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                         From="8" To="-12" Duration="0:0:1.4"
+                                                         AutoReverse="True" BeginTime="0:0:0.5" />
+                                        <DoubleAnimation Storyboard.TargetName="FloatSparkle1"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         From="0.15" To="0.9" Duration="0:0:1.2"
+                                                         AutoReverse="True" />
+                                        <DoubleAnimation Storyboard.TargetName="FloatSparkle2"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         From="0.85" To="0.2" Duration="0:0:1.5"
+                                                         AutoReverse="True" BeginTime="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="FloatSparkle3"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         From="0.3" To="1" Duration="0:0:1.1"
+                                                         AutoReverse="True" BeginTime="0:0:0.4" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Border.Triggers>
+                        <Grid>
+                            <!-- Ambient floating sparkles -->
+                            <ui:SymbolIcon x:Name="FloatSparkle1"
+                                           Symbol="Sparkle24" FontSize="16"
+                                           Foreground="#FFFFD54F"
+                                           HorizontalAlignment="Left" VerticalAlignment="Top"
+                                           Margin="48,56,0,0"
+                                           RenderTransformOrigin="0.5,0.5">
+                                <ui:SymbolIcon.RenderTransform>
+                                    <TranslateTransform />
+                                </ui:SymbolIcon.RenderTransform>
+                            </ui:SymbolIcon>
+                            <ui:SymbolIcon x:Name="FloatSparkle2"
+                                           Symbol="Sparkle24" FontSize="22"
+                                           Foreground="#FF81D4FA"
+                                           HorizontalAlignment="Right" VerticalAlignment="Center"
+                                           Margin="0,0,64,40"
+                                           RenderTransformOrigin="0.5,0.5">
+                                <ui:SymbolIcon.RenderTransform>
+                                    <TranslateTransform />
+                                </ui:SymbolIcon.RenderTransform>
+                            </ui:SymbolIcon>
+                            <ui:SymbolIcon x:Name="FloatSparkle3"
+                                           Symbol="Sparkle24" FontSize="14"
+                                           Foreground="#FFCE93D8"
+                                           HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                                           Margin="80,0,0,72"
+                                           RenderTransformOrigin="0.5,0.5">
+                                <ui:SymbolIcon.RenderTransform>
+                                    <TranslateTransform />
+                                </ui:SymbolIcon.RenderTransform>
+                            </ui:SymbolIcon>
+
+                            <Border x:Name="AgentBadge"
+                                    Background="#E61B1B1B"
+                                    CornerRadius="18"
+                                    Padding="20,14"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.45" Color="#FF3799E8" />
+                                </Border.Effect>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="28" Height="28" CornerRadius="8" Margin="0,0,12,0"
+                                            Background="#FF3799E8"
+                                            VerticalAlignment="Center">
+                                        <ui:SymbolIcon Symbol="Sparkle24"
+                                                       FontSize="14"
+                                                       Foreground="White"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center" />
+                                    </Border>
+                                    <ui:SymbolIcon x:Name="AgentSparkleA"
+                                                   Symbol="Sparkle24"
+                                                   FontSize="16"
+                                                   Foreground="#FFFFD54F"
+                                                   Margin="0,0,4,0"
+                                                   VerticalAlignment="Center" />
+                                    <ui:SymbolIcon x:Name="AgentSparkleB"
+                                                   Symbol="Sparkle24"
+                                                   FontSize="12"
+                                                   Foreground="#FF81D4FA"
+                                                   Margin="0,0,4,0"
+                                                   VerticalAlignment="Center" />
+                                    <ui:SymbolIcon x:Name="AgentSparkleC"
+                                                   Symbol="Sparkle24"
+                                                   FontSize="10"
+                                                   Foreground="#FFCE93D8"
+                                                   Margin="0,0,12,0"
+                                                   VerticalAlignment="Center" />
+                                    <TextBlock Text="Rex is updating the layout…"
+                                               Foreground="White"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Excel editor (ReoGrid — free) with Open XML fallback -->
+                <Grid Visibility="{Binding HomeViewer.IsExcelLayout, Converter={StaticResource BoolToVis}}">
+                    <rg:ReoGridControl x:Name="ExcelGrid" />
+                    <DataGrid x:Name="ExcelFallbackGrid"
+                              Visibility="Collapsed"
+                              AutoGenerateColumns="True"
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column"
+                              Background="{DynamicResource ApplicationBackgroundBrush}" />
+                </Grid>
+
+                <!-- Word layout preview (Open XML → FlowDocument — free, no license) -->
+                <DockPanel Visibility="{Binding HomeViewer.IsWordLayout, Converter={StaticResource BoolToVis}}">
+                    <Border DockPanel.Dock="Top"
+                            Padding="12,8"
+                            BorderThickness="0,0,0,1"
+                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                        <DockPanel>
+                            <ui:Button DockPanel.Dock="Right"
+                                       Appearance="Primary"
+                                       Click="OpenWordExternally_Click"
+                                       ToolTip="Open in Microsoft Word to edit (recommended for BC content controls)">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Open24" Margin="0,0,8,0" />
+                                    <TextBlock Text="Open in Word" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </ui:Button>
+                            <TextBlock Text="In-app Word preview (Open XML). Edit and save in Microsoft Word for full fidelity and BC content controls."
+                                       FontSize="12"
+                                       Opacity="0.7"
+                                       VerticalAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,12,0" />
+                        </DockPanel>
+                    </Border>
+                    <FlowDocumentScrollViewer x:Name="WordPreview"
+                                              IsToolBarVisible="False"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Auto"
+                                              Background="#FFF5F5F5" />
+                </DockPanel>
+
+                <!-- AL source (visibility on wrapper — AlSourceViewer replaces its own DataContext) -->
+                <Grid Visibility="{Binding HomeViewer.IsShowingAl, Converter={StaticResource BoolToVis}}">
+                    <editors:AlSourceViewer ViewModel="{Binding HomeViewer.AlSource}" />
+                </Grid>
+                </Grid>
+
+                <GridSplitter Grid.Column="1"
+                              Width="4"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Stretch"
+                              Visibility="{Binding HomeViewer.IsCopilotOpen, Converter={StaticResource BoolToVis}}" />
+
+                <!-- Copilot chat — same design language as Preview dialog -->
+                <Border Grid.Column="2"
+                        Width="380"
+                        BorderThickness="1,0,0,0"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                        Visibility="{Binding HomeViewer.IsCopilotOpen, Converter={StaticResource BoolToVis}}">
+                    <copilot:CopilotView x:Name="HomeCopilot" />
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="2"
+                    Padding="12,6"
+                    BorderThickness="0,1,0,0"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    Visibility="{Binding HomeViewer.IsRdlcLayout, Converter={StaticResource InverseBoolToVis}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding HomeViewer.StatusMessage}"
+                               VerticalAlignment="Center"
+                               Opacity="0.75"
+                               TextTrimming="CharacterEllipsis" />
+                    <ui:ProgressRing Grid.Column="1"
+                                     Width="18"
+                                     Height="18"
+                                     IsIndeterminate="True"
+                                     Visibility="{Binding HomeViewer.IsBusy, Converter={StaticResource BoolToVis}}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

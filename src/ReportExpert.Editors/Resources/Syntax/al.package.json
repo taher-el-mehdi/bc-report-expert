@@ -1,0 +1,18 @@
+{
+  "contributes": {
+    "languages": [
+      {
+        "id": "al",
+        "aliases": ["AL", "al"],
+        "extensions": [".al", ".dal", ".report.al"]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "al",
+        "scopeName": "source.al",
+        "path": "./al.tmLanguage.json"
+      }
+    ]
+  }
+}

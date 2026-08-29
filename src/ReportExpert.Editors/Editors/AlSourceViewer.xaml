@@ -1,0 +1,75 @@
+<UserControl x:Class="ReportExpert.Editors.Editors.AlSourceViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+             xmlns:helpers="clr-namespace:ReportExpert.Editors.Helpers"
+             x:Name="Root">
+
+    <UserControl.Resources>
+        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
+        <helpers:AlLoadStateToVisibilityConverter x:Key="LoadingToVis" />
+    </UserControl.Resources>
+
+    <Grid x:Name="RootContent" DataContext="{Binding ViewModel, ElementName=Root}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Padding="8,6"
+                BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Margin="0,0,6,0" Padding="10,4" Content="Open" Command="{Binding OpenAlCommand}" />
+                    <Button Padding="10,4" Content="Reload" Command="{Binding ReloadCommand}" />
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical">
+                    <TextBlock FontWeight="SemiBold" Text="AL Source" />
+                    <TextBlock FontSize="11" Opacity="0.75"
+                               Text="{Binding FileName, Mode=OneWay}"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <avalonEdit:TextEditor x:Name="Editor"
+                                   FontFamily="Cascadia Mono, Consolas, Courier New"
+                                   FontSize="13"
+                                   ShowLineNumbers="True"
+                                   IsReadOnly="True"
+                                   WordWrap="False"
+                                   HorizontalScrollBarVisibility="Auto"
+                                   VerticalScrollBarVisibility="Auto"
+                                   Background="Transparent" />
+
+            <Border Background="{DynamicResource ApplicationBackgroundBrush}"
+                    Visibility="{Binding HasSource, Converter={StaticResource InverseBoolToVis}}">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16">
+                    <TextBlock Text="No AL source loaded" FontSize="14" Opacity="0.7" HorizontalAlignment="Center" />
+                    <TextBlock Margin="0,8,0,12" TextWrapping="Wrap" MaxWidth="280" Opacity="0.6"
+                               HorizontalAlignment="Center"
+                               Text="{Binding StatusMessage, Mode=OneWay}" />
+                    <Button HorizontalAlignment="Center" Content="Open Report.al" Command="{Binding OpenAlCommand}" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="#66000000"
+                    Visibility="{Binding LoadState, Converter={StaticResource LoadingToVis}}">
+                <TextBlock Text="Loading..." Foreground="White"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Padding="8,4"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+            <TextBlock FontSize="11" Opacity="0.75"
+                       Text="{Binding StatusMessage, Mode=OneWay}" />
+        </Border>
+    </Grid>
+</UserControl>

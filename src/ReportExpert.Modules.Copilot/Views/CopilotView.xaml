@@ -1,0 +1,356 @@
+<UserControl x:Class="ReportExpert.Modules.Copilot.Views.CopilotView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:helpers="clr-namespace:ReportExpert.Modules.Copilot.Helpers">
+
+    <UserControl.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
+        <helpers:UserToAlignmentConverter x:Key="UserToAlignment" />
+
+        <!-- VS Code agent-style: assistant = flat text; user = soft chip -->
+        <DataTemplate x:Key="ChatMessageTemplate">
+            <Grid Margin="0,8"
+                  HorizontalAlignment="{Binding IsUser, Converter={StaticResource UserToAlignment}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Rex author row -->
+                <StackPanel Orientation="Horizontal" Margin="2,0,0,4"
+                            Visibility="{Binding IsUser, Converter={StaticResource InverseBoolToVis}}">
+                    <ui:SymbolIcon Symbol="BotSparkle24" FontSize="16"
+                                   Margin="0,0,6,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{Binding Author}"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Opacity="0.7"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+
+                <TextBlock Grid.Row="0"
+                           Text="{Binding Author}"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Opacity="0.45"
+                           HorizontalAlignment="Right"
+                           Margin="0,0,4,4"
+                           Visibility="{Binding IsUser, Converter={StaticResource BoolToVis}}" />
+
+                <!-- User chip -->
+                <Border Grid.Row="1"
+                        MaxWidth="440"
+                        Padding="12,8"
+                        CornerRadius="10"
+                        HorizontalAlignment="Right"
+                        Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                        Visibility="{Binding IsUser, Converter={StaticResource BoolToVis}}">
+                    <helpers:MarkdownViewer Markdown="{Binding Content}"
+                                            FontSize="13"
+                                            Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                </Border>
+
+                <!-- Assistant: width follows the chat pane -->
+                <Grid Grid.Row="1"
+                      HorizontalAlignment="Stretch"
+                      Visibility="{Binding IsUser, Converter={StaticResource InverseBoolToVis}}">
+                    <TextBlock Text="Thinking…"
+                               FontSize="13"
+                               FontStyle="Italic"
+                               Opacity="0.65"
+                               Visibility="{Binding IsThinking, Converter={StaticResource BoolToVis}}" />
+
+                    <helpers:MarkdownViewer Markdown="{Binding Content}"
+                                            FontSize="13"
+                                            HorizontalAlignment="Stretch"
+                                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                            Visibility="{Binding ShowMarkdown, Converter={StaticResource BoolToVis}}" />
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Tool call card -->
+        <DataTemplate x:Key="ToolCallTemplate">
+            <Border HorizontalAlignment="Stretch"
+                    Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="10,8"
+                    Margin="0,6">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0" Width="18" Height="18" Margin="0,0,8,0" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="ShieldTask24" FontSize="14"
+                                           Visibility="{Binding IsAwaitingApproval, Converter={StaticResource BoolToVis}}" />
+                            <ui:SymbolIcon Symbol="ArrowSync24" FontSize="14"
+                                           Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" />
+                            <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="14"
+                                           Foreground="#FF107C10"
+                                           Visibility="{Binding IsSucceeded, Converter={StaticResource BoolToVis}}" />
+                            <ui:SymbolIcon Symbol="ErrorCircle24" FontSize="14"
+                                           Foreground="#FFC42B1C"
+                                           Visibility="{Binding IsFailed, Converter={StaticResource BoolToVis}}" />
+                            <ui:SymbolIcon Symbol="DismissCircle24" FontSize="14"
+                                           Opacity="0.55"
+                                           Visibility="{Binding IsDenied, Converter={StaticResource BoolToVis}}" />
+                            <ui:SymbolIcon Symbol="LockClosed24" FontSize="14"
+                                           Opacity="0.7"
+                                           Visibility="{Binding IsDisabled, Converter={StaticResource BoolToVis}}" />
+                        </Grid>
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ToolName}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       FontFamily="Consolas"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding StatusText}"
+                                       FontSize="10"
+                                       Opacity="0.55" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:ProgressRing Width="14" Height="14"
+                                             IsIndeterminate="True"
+                                             Margin="0,0,4,0"
+                                             Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" />
+                            <ui:Button Appearance="Transparent"
+                                       Padding="6,2"
+                                       ToolTip="Show details"
+                                       Command="{Binding ToggleDetailsCommand}">
+                                <ui:SymbolIcon Symbol="ChevronDown24" FontSize="12" />
+                            </ui:Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding Summary}"
+                               Margin="26,6,0,0"
+                               FontSize="11"
+                               Opacity="0.75"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding HasSummary, Converter={StaticResource BoolToVis}}" />
+
+                    <Border Margin="26,8,0,0"
+                            Padding="8,6"
+                            CornerRadius="6"
+                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                            Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVis}}">
+                        <TextBox Text="{Binding Arguments, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 TextWrapping="NoWrap"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="0"
+                                 FontFamily="Consolas"
+                                 FontSize="11"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 MaxHeight="220"
+                                 VerticalScrollBarVisibility="Auto" />
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal"
+                                Margin="26,10,0,0"
+                                Visibility="{Binding IsAwaitingApproval, Converter={StaticResource BoolToVis}}">
+                        <ui:Button Content="Confirm once"
+                                   Appearance="Primary"
+                                   Padding="12,4"
+                                   Margin="0,0,6,0"
+                                   ToolTip="Allow only this change"
+                                   Command="{Binding ApproveOnceCommand}" />
+                        <ui:Button Content="Confirm always"
+                                   Padding="12,4"
+                                   Margin="0,0,6,0"
+                                   ToolTip="Allow this and every later change until you restart or turn agent mode off"
+                                   Command="{Binding ApproveAlwaysCommand}" />
+                        <ui:Button Content="Decline"
+                                   Padding="12,4"
+                                   Command="{Binding DenyCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <helpers:CopilotMessageTemplateSelector x:Key="MessageTemplateSelector"
+                                                ChatTemplate="{StaticResource ChatMessageTemplate}"
+                                                ToolCallTemplate="{StaticResource ToolCallTemplate}" />
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource ApplicationBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Padding="14,12"
+                BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="BotSparkle24" FontSize="20"
+                                       Margin="0,0,10,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="Rex"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding ReportContextDisplay}"
+                               Margin="30,4,0,0"
+                               FontSize="11"
+                               Opacity="0.55"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <ui:Button Grid.Column="1"
+                           Appearance="Transparent"
+                           ToolTip="Clear chat"
+                           Command="{Binding ClearChatCommand}"
+                           VerticalAlignment="Top">
+                    <ui:SymbolIcon Symbol="Broom24" />
+                </ui:Button>
+            </Grid>
+        </Border>
+
+        <!-- Chat: constrain width to the viewport so messages grow when the pane is stretched -->
+        <ScrollViewer Grid.Row="1"
+                      x:Name="ChatScroll"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Padding="14,8">
+            <ItemsControl ItemsSource="{Binding Messages}"
+                          Width="{Binding ViewportWidth, ElementName=ChatScroll}"
+                          ItemTemplateSelector="{StaticResource MessageTemplateSelector}">
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Busy strip -->
+        <Border Grid.Row="2"
+                Margin="12,0,12,8"
+                Padding="10,8"
+                CornerRadius="8"
+                Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+            <DockPanel>
+                <ui:Button DockPanel.Dock="Right"
+                           Content="Stop"
+                           Appearance="Transparent"
+                           Padding="10,2"
+                           VerticalAlignment="Center"
+                           Command="{Binding StopCommand}" />
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="BotSparkle24" FontSize="16"
+                                   Margin="0,0,10,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <ui:ProgressRing Width="14" Height="14"
+                                     IsIndeterminate="True"
+                                     Margin="0,0,8,0"
+                                     VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding BusyStatusText}"
+                               FontSize="12"
+                               Opacity="0.8"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Composer -->
+        <Border Grid.Row="3"
+                Padding="12,10"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBox x:Name="InputBox"
+                                Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="Ask Rex to help you with the layout"
+                                AcceptsReturn="True"
+                                TextWrapping="Wrap"
+                                MinHeight="56"
+                                MaxHeight="140"
+                                VerticalContentAlignment="Top"
+                                Padding="10,8"
+                                VerticalScrollBarVisibility="Auto"
+                                PreviewKeyDown="InputBox_PreviewKeyDown"
+                                ToolTip="Enter to send · Shift+Enter for a new line" />
+                    <ui:Button Grid.Column="1"
+                               Margin="8,0,0,0"
+                               Appearance="Primary"
+                               Command="{Binding SendCommand}"
+                               MinHeight="56"
+                               MinWidth="44"
+                               VerticalAlignment="Bottom"
+                               ToolTip="Send (Enter)">
+                        <ui:SymbolIcon Symbol="Send24" />
+                    </ui:Button>
+                </Grid>
+
+                <!-- Provider + model -->
+                <DockPanel Grid.Row="1" Margin="2,8,0,0" LastChildFill="True">
+                    <TextBlock DockPanel.Dock="Left"
+                               Text="{Binding ProviderDisplayName}"
+                               FontSize="11"
+                               Opacity="0.55"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               ToolTip="Configured in Settings" />
+                    <ComboBox ItemsSource="{Binding ModelOptions}"
+                              SelectedValuePath="ModelId"
+                              SelectedValue="{Binding Model, Mode=TwoWay}"
+                              FontSize="11"
+                              MinHeight="28"
+                              MaxWidth="280"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Center"
+                              ToolTip="Change model (saved to Settings)">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,1">
+                                    <TextBlock FontWeight="SemiBold" Text="{Binding DisplayName}" FontSize="11" />
+                                    <TextBlock FontSize="10" Opacity="0.55"
+                                               Text="{Binding ModelId}" FontFamily="Consolas" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </DockPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\mcp\ReportExpert.Mcp.Client\ReportExpert.Mcp.Client.csproj" />
+    <!--
+      The end-to-end test launches the real server executable over stdio.
+      ReferenceOutputAssembly=false keeps the client assembly free of any
+      compile-time dependency on the server; this is only a build ordering edge.
+    -->
+    <ProjectReference Include="..\..\src\mcp\ReportExpert.Rdl.Mcp.Server\ReportExpert.Rdl.Mcp.Server.csproj"
+                      ReferenceOutputAssembly="false"
+                      Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The same report the domain and tool tests use, so all three describe one fixture. -->
+    <EmbeddedResource Include="..\Shared\sample-report.rdlc" LogicalName="sample-report.rdlc" />
+  </ItemGroup>
+
+</Project>

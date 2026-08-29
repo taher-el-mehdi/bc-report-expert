@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ReportExpert.Reporting.Export</RootNamespace>
+    <AssemblyName>ReportExpert.Reporting.Export</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ReportViewerCore.NETCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ReportExpert.Core\ReportExpert.Core.csproj" />
+    <ProjectReference Include="..\ReportExpert.Domain\ReportExpert.Domain.csproj" />
+  </ItemGroup>
+</Project>

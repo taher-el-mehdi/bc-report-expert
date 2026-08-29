@@ -1,0 +1,6 @@
+root = false
+
+# Tool parameter names are part of the MCP wire contract: they appear verbatim in the JSON schema the client 
+# and  configurations keep working. .NET naming conventions do not apply.
+[*.cs]
+dotnet_diagnostic.CA1707.severity = none

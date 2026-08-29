@@ -1,0 +1,81 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>ReportExpert</AssemblyName>
+    <AssemblyTitle>Report Expert</AssemblyTitle>
+    <Product>Report Expert</Product>
+    <ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="WPF-UI" />
+    <PackageReference Include="unvell.ReoGridWPF.dll" />
+    <PackageReference Include="DocumentFormat.OpenXml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReportExpert.Common\ReportExpert.Common.csproj" />
+    <ProjectReference Include="..\ReportExpert.Core\ReportExpert.Core.csproj" />
+    <ProjectReference Include="..\ReportExpert.Domain\ReportExpert.Domain.csproj" />
+    <ProjectReference Include="..\ReportExpert.Editors\ReportExpert.Editors.csproj" />
+    <ProjectReference Include="..\ReportExpert.Modules.Preview\ReportExpert.Modules.Preview.csproj" />
+    <ProjectReference Include="..\ReportExpert.Modules.Copilot\ReportExpert.Modules.Copilot.csproj" />
+    <ProjectReference Include="..\ReportExpert.RdlcDesigner\ReportExpert.RdlcDesigner.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Build the RDLC MCP server with the app, but do not link against it. A post-build target
+      copies the full server output (exe + every dependency DLL) into mcp/rdlc/ so the child
+      process can start. Copying only the exe leaves it unable to find Microsoft.Extensions.Hosting.
+    -->
+    <ProjectReference Include="..\mcp\ReportExpert.Rdl.Mcp.Server\ReportExpert.Rdl.Mcp.Server.csproj"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <Target Name="CopyBundledRdlcMcp" AfterTargets="Build">
+    <PropertyGroup>
+      <_RdlcMcpSourceDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\mcp\ReportExpert.Rdl.Mcp.Server\bin\$(Configuration)\net10.0\'))</_RdlcMcpSourceDir>
+      <_RdlcMcpDestDir>$([System.IO.Path]::GetFullPath('$(OutDir)mcp\rdlc\'))</_RdlcMcpDestDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_RdlcMcpFiles Include="$(_RdlcMcpSourceDir)**\*"
+                     Exclude="$(_RdlcMcpSourceDir)**\*.pdb;$(_RdlcMcpSourceDir)**\*.xml" />
+      <_StaleFlatRdlcMcp Include="$(OutDir)rdlc-mcp.exe;
+                                 $(OutDir)rdlc-mcp.dll;
+                                 $(OutDir)rdlc-mcp.deps.json;
+                                 $(OutDir)rdlc-mcp.runtimeconfig.json;
+                                 $(OutDir)rdlc-mcp.pdb;
+                                 $(OutDir)rdlc-mcp.xml" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(_RdlcMcpDestDir)" Condition="Exists('$(_RdlcMcpSourceDir)')" />
+    <Copy SourceFiles="@(_RdlcMcpFiles)"
+          DestinationFiles="@(_RdlcMcpFiles->'$(_RdlcMcpDestDir)%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_RdlcMcpSourceDir)')" />
+    <Delete Files="@(_StaleFlatRdlcMcp)" TreatErrorsAsWarnings="true" />
+  </Target>
+
+  <ItemGroup>
+    <Resource Include="Assets\logo.png" />
+    <Resource Include="Assets\logo-light.png" />
+    <Resource Include="Assets\logo-dark.png" />
+    <Resource Include="Assets\app-icon.ico" />
+    <Resource Include="Assets\app-icon-dark.ico" />
+    <Resource Include="Assets\icons\**\*.png" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\mcp\ReportExpert.Rdl.Core\ReportExpert.Rdl.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Shared with the MCP server tests so both suites assert against the same report. -->
+    <EmbeddedResource Include="..\Shared\sample-report.rdlc" LogicalName="sample-report.rdlc" />
+  </ItemGroup>
+
+</Project>
