@@ -11,8 +11,8 @@ From [GitHub Releases](https://github.com/taher-el-mehdi/bc-report-expert/releas
 
 | Artifact | File |
 |----------|------|
-| Installer (recommended) | `ReportExpert-Setup-v1.0-Marmoset.exe` |
-| Portable ZIP | `ReportExpert-v1.0-Marmoset-win-x64.zip` |
+| Installer (recommended) | [`ReportExpert-Setup-v1.0-Marmoset.exe`](https://github.com/taher-el-mehdi/bc-report-expert/releases/download/v1.0.0/ReportExpert-Setup-v1.0-Marmoset.exe) |
+| Portable ZIP | [`ReportExpert-v1.0-Marmoset-win-x64.zip`](https://github.com/taher-el-mehdi/bc-report-expert/releases/download/v1.0.0/ReportExpert-v1.0-Marmoset-win-x64.zip) |
 
 The installer is per-user (no admin). The ZIP is self-contained — unzip and run `ReportExpert.exe`. Windows 10/11 x64 is required; 
 
