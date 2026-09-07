@@ -12,8 +12,8 @@
     Product identity (Package/Identity name and Publisher).
   -->
   <Identity
-    Name="TaherElMehdi.ReportExpert"
-    Publisher="CN=TAHER El Mehdi"
+    Name="TAHERELMEHDI.ReportExpert"
+    Publisher="CN=3F008BBC-A619-4112-B567-6325DD4E8CD7"
     Version="1.0.0.0"
     ProcessorArchitecture="x64" />
 

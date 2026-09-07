@@ -32,8 +32,10 @@ param(
     [switch]$SkipInstaller,
     [switch]$SkipMsix,
     [switch]$SkipSign,
-    [string]$PackageIdentityName = 'TaherElMehdi.ReportExpert',
-    [string]$Publisher = 'CN=TAHER El Mehdi',
+    # Identity Name is Partner Center "Package/Identity name" (not the Package Family Name suffix).
+    [string]$PackageIdentityName = 'TAHERELMEHDI.ReportExpert',
+    # Store publisher is always CN={Partner Center Publisher ID GUID}.
+    [string]$Publisher = 'CN=3F008BBC-A619-4112-B567-6325DD4E8CD7',
     [string]$PublisherDisplayName = 'TAHER El Mehdi'
 )
 
