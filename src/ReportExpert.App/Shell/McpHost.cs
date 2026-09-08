@@ -1,5 +1,4 @@
 using System.IO;
-using System.Reflection;
 using ReportExpert.Mcp.Client;
 
 namespace ReportExpert.App.Shell;
@@ -9,9 +8,10 @@ namespace ReportExpert.App.Shell;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The server list comes from <c>%AppData%\ReportExpert\mcp-servers.json</c>. On first run that
-/// file is written pointing at the RDLC server shipped alongside the application, so tools work
-/// out of the box while still being reconfigurable by hand.
+/// The server list comes from <c>%AppData%\ReportExpert\mcp-servers.json</c>. The shipped
+/// <c>rdl</c> entry is stored as a path relative to the application directory
+/// (<c>mcp\rdlc\rdlc-mcp.exe</c>) and resolved at launch, so Store, installer, and debug
+/// builds all start the copy that sits beside the running exe.
 /// </para>
 /// <para>
 /// Nothing here is referenced by the Copilot module: the assistant sees only
@@ -20,10 +20,6 @@ namespace ReportExpert.App.Shell;
 /// </remarks>
 public sealed class McpHost : IMcpServerHost, IAsyncDisposable
 {
-    private const string BundledServerId = "rdl";
-    private const string BundledServerExecutable = "rdlc-mcp.exe";
-    private const string BundledServerRelativeDirectory = "mcp\\rdlc";
-
     private readonly SemaphoreSlim _gate = new(1, 1);
     private McpToolRegistry? _registry;
     private bool _disposed;
@@ -86,8 +82,8 @@ public sealed class McpHost : IMcpServerHost, IAsyncDisposable
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            // Re-seed / repair the path before reconnecting, in case the config still points at an
-            // old flat copy of rdlc-mcp.exe that is missing its dependency DLLs.
+            // Re-seed / repair the path before reconnecting, in case the config still points at a
+            // leftover Debug build or an old flat copy of rdlc-mcp.exe.
             EnsureConfiguration();
 
             if (_registry is { } existing)
@@ -116,46 +112,9 @@ public sealed class McpHost : IMcpServerHost, IAsyncDisposable
         _gate.Dispose();
     }
 
-    /// <summary>
-    /// The RDLC server that ships with the application, or <see langword="null"/> when it is not
-    /// beside the executable.
-    /// </summary>
-    private static string? BundledServerPath()
-    {
-        string? directory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location ?? string.Empty);
-        if (string.IsNullOrEmpty(directory))
-            return null;
-
-        // Prefer the self-contained mcp/rdlc folder (exe + Hosting + Rdl.Core + …).
-        string nested = Path.Combine(directory, BundledServerRelativeDirectory, BundledServerExecutable);
-        if (IsRunnableServer(nested))
-            return nested;
-
-        // Legacy flat copy next to the app — only accept it when its dependencies are present.
-        string flat = Path.Combine(directory, BundledServerExecutable);
-        return IsRunnableServer(flat) ? flat : null;
-    }
-
-    /// <summary>
-    /// True when <paramref name="exePath"/> exists and sits next to the assemblies the server
-    /// needs to start. A lone exe without Microsoft.Extensions.Hosting.dll crashes immediately.
-    /// </summary>
-    private static bool IsRunnableServer(string exePath)
-    {
-        if (!File.Exists(exePath))
-            return false;
-
-        string? directory = Path.GetDirectoryName(exePath);
-        if (string.IsNullOrEmpty(directory))
-            return false;
-
-        return File.Exists(Path.Combine(directory, "Microsoft.Extensions.Hosting.dll"))
-            && File.Exists(Path.Combine(directory, "ReportExpert.Rdl.Core.dll"));
-    }
-
     private static void EnsureConfiguration()
     {
-        string? bundled = BundledServerPath();
+        string? bundled = BundledMcpLocator.Find();
 
         try
         {
@@ -166,29 +125,19 @@ public sealed class McpHost : IMcpServerHost, IAsyncDisposable
 
                 McpServerConfiguration.Save(
                 [
-                    new McpServerDefinition { Id = BundledServerId, Command = bundled },
+                    new McpServerDefinition
+                    {
+                        Id = BundledMcpLocator.ServerId,
+                        Command = BundledMcpLocator.RelativeCommand,
+                    },
                 ]);
                 return;
             }
 
-            if (bundled is null)
-                return;
-
-            // An earlier build wrote a path to a flat rdlc-mcp.exe that cannot start. Point the
-            // bundled "rdl" entry at the complete mcp/rdlc folder instead.
-            var servers = McpServerConfiguration.LoadAll().ToList();
-            int index = servers.FindIndex(server =>
-                string.Equals(server.Id, BundledServerId, StringComparison.Ordinal));
-
-            if (index < 0)
-                return;
-
-            var current = servers[index];
-            if (IsRunnableServer(current.Expanded().Command))
-                return;
-
-            servers[index] = current with { Command = bundled };
-            McpServerConfiguration.Save(servers);
+            var servers = McpServerConfiguration.LoadAll();
+            var repaired = BundledMcpLocator.Repair(servers, bundled);
+            if (!ReferenceEquals(repaired, servers))
+                McpServerConfiguration.Save(repaired);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {

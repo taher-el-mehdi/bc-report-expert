@@ -168,6 +168,10 @@ public sealed class StdioMcpServerConnection : IAsyncDisposable
             StandardErrorLines = line => Log.ServerOutput(_logger, _definition.Id, line),
         };
 
+        // Replace Command/Arguments so Windows paths with spaces (Store, Program Files,
+        // "Report Expert") are not split by the SDK's cmd.exe /c wrapper.
+        McpStdioLaunch.Apply(options, _definition);
+
         if (_definition.Environment.Count > 0)
         {
             options.EnvironmentVariables ??= new Dictionary<string, string?>(StringComparer.Ordinal);

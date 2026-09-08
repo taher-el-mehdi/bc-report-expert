@@ -107,6 +107,29 @@ public class McpServerConfigurationTests : IDisposable
     }
 
     [Fact]
+    public void AppRelativeCommandsAreResolvedAgainstTheApplicationDirectory()
+    {
+        string path = Write("""
+            { "servers": [ { "id": "rdl", "command": "mcp\\rdlc\\rdlc-mcp.exe" } ] }
+            """);
+
+        string command = McpServerConfiguration.Load(path)[0].Command;
+
+        Assert.True(Path.IsPathRooted(command));
+        Assert.EndsWith(Path.Combine("mcp", "rdlc", "rdlc-mcp.exe"), command, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void BareCommandNamesStayOnThePath()
+    {
+        string path = Write("""
+            { "servers": [ { "id": "rdl", "command": "npx" } ] }
+            """);
+
+        Assert.Equal("npx", McpServerConfiguration.Load(path)[0].Command);
+    }
+
+    [Fact]
     public void WhatIsSavedCanBeLoadedBack()
     {
         string path = Path.Combine(_directory, "roundtrip.json");

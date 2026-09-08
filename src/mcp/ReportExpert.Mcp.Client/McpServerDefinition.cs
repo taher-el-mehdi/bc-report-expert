@@ -37,16 +37,16 @@ public sealed record McpServerDefinition
     public bool Enabled { get; init; } = true;
 
     /// <summary>
-    /// Expands environment variables in the paths, so a configuration file can refer to
-    /// <c>%LOCALAPPDATA%</c> and stay portable between machines.
+    /// Expands environment variables and resolves app-relative commands such as
+    /// <c>mcp\rdlc\rdlc-mcp.exe</c> against the running application directory.
     /// </summary>
     /// <returns>A definition with its paths resolved.</returns>
     public McpServerDefinition Expanded() => this with
     {
-        Command = System.Environment.ExpandEnvironmentVariables(Command),
+        Command = BundledMcpLocator.ResolveCommand(Command),
         WorkingDirectory = WorkingDirectory is null
             ? null
-            : System.Environment.ExpandEnvironmentVariables(WorkingDirectory),
+            : BundledMcpLocator.ResolveCommand(WorkingDirectory),
         Arguments = [.. Arguments.Select(System.Environment.ExpandEnvironmentVariables)],
     };
 }

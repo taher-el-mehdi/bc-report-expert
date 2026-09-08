@@ -39,8 +39,9 @@ flowchart LR
 ```
 
 `McpHost` in `ReportExpert.App/Shell` owns the child processes. On first run it writes
-`%AppData%\ReportExpert\mcp-servers.json` pointing at the `mcp/rdlc/rdlc-mcp.exe` folder that ships
-beside the app (the full server output, not a lone exe). Adding a second MCP server is a config
+`%AppData%\ReportExpert\mcp-servers.json` with a **relative** command (`mcp\rdlc\rdlc-mcp.exe`)
+that is resolved against the running application directory. That keeps Store, installer, and
+debug builds from reusing a leftover Visual Studio path. Adding a second MCP server is a config
 entry, not a code change.
 
 `McpToolRegistry` prefixes every tool with its server id — `rdl__add_column` — so two servers can

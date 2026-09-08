@@ -46,7 +46,9 @@
 
   <Target Name="CopyBundledRdlcMcp" AfterTargets="Build">
     <PropertyGroup>
-      <_RdlcMcpSourceDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\mcp\ReportExpert.Rdl.Mcp.Server\bin\$(Configuration)\net10.0\'))</_RdlcMcpSourceDir>
+      <_RdlcMcpBase>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\mcp\ReportExpert.Rdl.Mcp.Server\bin\$(Configuration)\'))</_RdlcMcpBase>
+      <_RdlcMcpSourceDir Condition="'$(RuntimeIdentifier)' != '' and Exists('$(_RdlcMcpBase)net10.0\$(RuntimeIdentifier)\rdlc-mcp.exe')">$(_RdlcMcpBase)net10.0\$(RuntimeIdentifier)\</_RdlcMcpSourceDir>
+      <_RdlcMcpSourceDir Condition="'$(_RdlcMcpSourceDir)' == '' and Exists('$(_RdlcMcpBase)net10.0\rdlc-mcp.exe')">$(_RdlcMcpBase)net10.0\</_RdlcMcpSourceDir>
       <_RdlcMcpDestDir>$([System.IO.Path]::GetFullPath('$(OutDir)mcp\rdlc\'))</_RdlcMcpDestDir>
     </PropertyGroup>
 
@@ -67,6 +69,24 @@
           SkipUnchangedFiles="true"
           Condition="Exists('$(_RdlcMcpSourceDir)')" />
     <Delete Files="@(_StaleFlatRdlcMcp)" TreatErrorsAsWarnings="true" />
+  </Target>
+
+  <!--
+    Store / installer / zip publishes are self-contained. The MCP child process does not share
+    the parent runtime, so it must be published the same way or it fails on machines without
+    a separate .NET install.
+  -->
+  <Target Name="PublishBundledRdlcMcp" AfterTargets="Publish">
+    <PropertyGroup>
+      <_RdlcMcpProject>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\mcp\ReportExpert.Rdl.Mcp.Server\ReportExpert.Rdl.Mcp.Server.csproj'))</_RdlcMcpProject>
+      <_RdlcMcpPublishDir>$([System.IO.Path]::GetFullPath('$(PublishDir)mcp\rdlc\'))</_RdlcMcpPublishDir>
+      <_RdlcMcpRid Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</_RdlcMcpRid>
+      <_RdlcMcpRid Condition="'$(_RdlcMcpRid)' == ''">win-x64</_RdlcMcpRid>
+      <_RdlcSelfContained Condition="'$(SelfContained)' == 'true'">true</_RdlcSelfContained>
+      <_RdlcSelfContained Condition="'$(_RdlcSelfContained)' == ''">true</_RdlcSelfContained>
+    </PropertyGroup>
+    <MakeDir Directories="$(_RdlcMcpPublishDir)" />
+    <Exec Command="dotnet publish &quot;$(_RdlcMcpProject)&quot; -c $(Configuration) -r $(_RdlcMcpRid) --self-contained $(_RdlcSelfContained) -o &quot;$(_RdlcMcpPublishDir)&quot;" />
   </Target>
 
   <ItemGroup>

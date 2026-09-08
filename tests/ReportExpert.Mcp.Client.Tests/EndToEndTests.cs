@@ -171,6 +171,43 @@ public class EndToEndTests
     }
 
     [Fact]
+    public async Task AServerUnderAPathWithSpacesCanStillStart()
+    {
+        // Store, Program Files, and this repository all have spaces in the path. The MCP SDK's
+        // default cmd.exe /c wrap splits on the first space unless we quote it ourselves.
+        string staged = Path.Combine(Path.GetTempPath(), "Report Expert mcp", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(staged);
+
+        try
+        {
+            CopyDirectory(Path.GetDirectoryName(ServerExecutable.Path)!, staged);
+
+            string exe = Path.Combine(staged, Path.GetFileName(ServerExecutable.Path));
+            using var cancellation = new CancellationTokenSource(Timeout);
+            await using var registry = new McpToolRegistry(
+            [
+                new McpServerDefinition { Id = "rdl", Command = exe },
+            ]);
+
+            var tools = await registry.ListToolsAsync(cancellation.Token);
+
+            Assert.Contains(tools, tool => tool.QualifiedName == "rdl__describe_rdl_report");
+        }
+        finally
+        {
+            try
+            {
+                if (Directory.Exists(staged))
+                    Directory.Delete(staged, recursive: true);
+            }
+            catch (IOException)
+            {
+                // A leftover temp directory must never fail a test run.
+            }
+        }
+    }
+
+    [Fact]
     public async Task AServerThatCannotStartIsSkippedRatherThanFailingTheCatalogue()
     {
         using var cancellation = new CancellationTokenSource(Timeout);
@@ -204,6 +241,17 @@ public class EndToEndTests
 
         // Three calls, one child process: the connection is established lazily and then kept.
         Assert.True(registry.Connections.Single().IsConnected);
+    }
+
+    private static void CopyDirectory(string source, string destination)
+    {
+        Directory.CreateDirectory(destination);
+
+        foreach (string file in Directory.GetFiles(source))
+            File.Copy(file, Path.Combine(destination, Path.GetFileName(file)), overwrite: true);
+
+        foreach (string child in Directory.GetDirectories(source))
+            CopyDirectory(child, Path.Combine(destination, Path.GetFileName(child)));
     }
 }
 
