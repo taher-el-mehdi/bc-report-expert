@@ -144,4 +144,35 @@ public class McpStdioLaunchTests
         Assert.Equal(["/c", Path.GetFullPath(exe)], options.Arguments);
         Assert.Equal(Path.GetDirectoryName(Path.GetFullPath(exe)), options.WorkingDirectory);
     }
+
+    [Fact]
+    public void IsDirectExecutableIsTrueForAnExistingExe()
+    {
+        string directory = Path.Combine(Path.GetTempPath(), "rdlc-mcp-launch", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        string exe = Path.Combine(directory, "rdlc-mcp.exe");
+
+        try
+        {
+            File.WriteAllBytes(exe, [0]);
+            Assert.True(McpStdioLaunch.IsDirectExecutable(exe));
+        }
+        finally
+        {
+            try
+            {
+                Directory.Delete(directory, recursive: true);
+            }
+            catch (IOException)
+            {
+                // A leftover temp directory must never fail a test run.
+            }
+        }
+    }
+
+    [Fact]
+    public void IsDirectExecutableIsFalseForAShellCommand()
+    {
+        Assert.False(McpStdioLaunch.IsDirectExecutable("npx"));
+    }
 }

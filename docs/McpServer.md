@@ -44,6 +44,11 @@ that is resolved against the running application directory. That keeps Store, in
 debug builds from reusing a leftover Visual Studio path. Adding a second MCP server is a config
 entry, not a code change.
 
+The MCP C# SDK wraps Windows commands in `cmd.exe /c`. That is required for `npx`-style shims, but
+`cmd.exe` lives outside the Store package, so the child **breaks away** and cannot load
+`hostfxr.dll` from `WindowsApps` (access denied). Real `.exe` paths are started with
+`ProcessStartInfo.FileName` set to the executable so the child keeps package identity.
+
 `McpToolRegistry` prefixes every tool with its server id — `rdl__add_column` — so two servers can
 offer a tool of the same name without colliding. The double underscore is deliberate: OpenAI-style
 tool names must match `^[a-zA-Z0-9_-]{1,64}$`, which rules out a dot.

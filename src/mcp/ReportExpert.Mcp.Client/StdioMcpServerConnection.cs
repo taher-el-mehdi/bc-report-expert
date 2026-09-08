@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using ModelContextProtocol.Client;
@@ -26,6 +27,7 @@ public sealed class StdioMcpServerConnection : IAsyncDisposable
     private readonly SemaphoreSlim _gate = new(1, 1);
 
     private McpClient? _client;
+    private Process? _process;
     private bool _disposed;
 
     /// <summary>Creates a connection.</summary>
@@ -157,19 +159,52 @@ public sealed class StdioMcpServerConnection : IAsyncDisposable
     /// <summary>Starts the child process. The caller must hold <see cref="_gate"/>.</summary>
     private async ValueTask<McpClient> StartAsync(CancellationToken cancellationToken)
     {
+        try
+        {
+            _client = McpStdioLaunch.IsDirectExecutable(_definition.Command)
+                ? await StartDirectAsync(cancellationToken).ConfigureAwait(false)
+                : await StartThroughSdkAsync(cancellationToken).ConfigureAwait(false);
+
+            LastError = null;
+            Log.Connected(_logger, _definition.Id, _definition.Command);
+
+            return _client;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            await StopProcessAsync().ConfigureAwait(false);
+            LastError = exception.Message;
+            Log.StartFailed(_logger, exception, _definition.Id, _definition.Command);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Starts a real <c>.exe</c> with <see cref="ProcessStartInfo.FileName"/> so a Store
+    /// package child keeps identity and can load <c>hostfxr.dll</c> from WindowsApps.
+    /// </summary>
+    private async ValueTask<McpClient> StartDirectAsync(CancellationToken cancellationToken)
+    {
+        _process = McpStdioLaunch.StartDirect(
+            _definition,
+            line => Log.ServerOutput(_logger, _definition.Id, line));
+
+        return await McpClient.CreateAsync(
+            new StreamClientTransport(_process.StandardInput.BaseStream, _process.StandardOutput.BaseStream),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+    }
+
+    private async ValueTask<McpClient> StartThroughSdkAsync(CancellationToken cancellationToken)
+    {
         var options = new StdioClientTransportOptions
         {
             Name = _definition.Id,
             Command = _definition.Command,
             Arguments = [.. _definition.Arguments],
             WorkingDirectory = _definition.WorkingDirectory,
-            // The server logs to stderr because stdout carries the protocol, so this is the only
-            // way to see why one is misbehaving.
             StandardErrorLines = line => Log.ServerOutput(_logger, _definition.Id, line),
         };
 
-        // Replace Command/Arguments so Windows paths with spaces (Store, Program Files,
-        // "Report Expert") are not split by the SDK's cmd.exe /c wrapper.
         McpStdioLaunch.Apply(options, _definition);
 
         if (_definition.Environment.Count > 0)
@@ -180,42 +215,54 @@ public sealed class StdioMcpServerConnection : IAsyncDisposable
                 options.EnvironmentVariables[key] = value;
         }
 
-        try
-        {
-            _client = await McpClient.CreateAsync(
-                new StdioClientTransport(options),
-                cancellationToken: cancellationToken).ConfigureAwait(false);
-
-            LastError = null;
-            Log.Connected(_logger, _definition.Id, _definition.Command);
-
-            return _client;
-        }
-        catch (Exception exception) when (exception is not OperationCanceledException)
-        {
-            LastError = exception.Message;
-            Log.StartFailed(_logger, exception, _definition.Id, _definition.Command);
-            throw;
-        }
+        return await McpClient.CreateAsync(
+            new StdioClientTransport(options),
+            cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>Tears the session down. The caller must hold <see cref="_gate"/>, or be disposing.</summary>
     private async ValueTask CloseAsync()
     {
-        if (_client is null)
+        if (_client is { } client)
+        {
+            _client = null;
+
+            try
+            {
+                await client.DisposeAsync().ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                // Shutting down a process that has already died is expected and not worth surfacing.
+                Log.UncleanShutdown(_logger, exception, _definition.Id);
+            }
+        }
+
+        await StopProcessAsync().ConfigureAwait(false);
+    }
+
+    private async ValueTask StopProcessAsync()
+    {
+        if (_process is null)
             return;
 
-        var client = _client;
-        _client = null;
+        var process = _process;
+        _process = null;
 
         try
         {
-            await client.DisposeAsync().ConfigureAwait(false);
+            if (!process.HasExited)
+                process.Kill(entireProcessTree: true);
+
+            await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException or TimeoutException or OperationCanceledException)
         {
-            // Shutting down a process that has already died is expected and not worth surfacing.
             Log.UncleanShutdown(_logger, exception, _definition.Id);
+        }
+        finally
+        {
+            process.Dispose();
         }
     }
 

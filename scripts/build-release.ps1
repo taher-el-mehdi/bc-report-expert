@@ -465,7 +465,8 @@ Write-Host 'Microsoft Store notes:' -ForegroundColor Green
 Write-Host "  1. Reserve the app name in Partner Center."
 Write-Host "  2. Copy Package/Identity name + Publisher into this script (or AppxManifest.xml)."
 Write-Host "  3. Rebuild, then upload $MsixFileName under Packages."
-Write-Host "  4. runFullTrust requires Store declaration/approval for full-trust desktop apps."
+Write-Host "  4. Each upload must use a new Identity Version (currently $MsixVersion). Remove any older package with the same full name from the submission first."
+Write-Host "  5. runFullTrust requires Store declaration/approval for full-trust desktop apps."
 Write-Host ''
 Write-Host 'GitHub Releases:' -ForegroundColor Green
 Write-Host "  1. $InstallerFileName  (primary download)"

@@ -3,8 +3,9 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap uap10 rescap">
+  IgnorableNamespaces="uap uap10 desktop rescap">
 
   <!--
     Store identity: after you reserve the app name in Partner Center, replace
@@ -14,7 +15,7 @@
   <Identity
     Name="TAHERELMEHDI.ReportExpert"
     Publisher="CN=3F008BBC-A619-4112-B567-6325DD4E8CD7"
-    Version="1.0.0.0"
+    Version="1.0.2.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
@@ -55,6 +56,13 @@
           Square71x71Logo="Assets\Square71x71Logo.png"
           Square310x310Logo="Assets\Square310x310Logo.png" />
       </uap:VisualElements>
+      <!--
+        The RDLC MCP server is a second full-trust exe in the package. Declaring it lets
+        CreateProcess keep package identity so hostfxr.dll can load from WindowsApps.
+      -->
+      <Extensions>
+        <desktop:Extension Category="windows.fullTrustProcess" Executable="mcp\rdlc\rdlc-mcp.exe" />
+      </Extensions>
     </Application>
   </Applications>
 </Package>

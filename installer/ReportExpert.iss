@@ -2,7 +2,7 @@
 ; Build: run scripts/build-release.ps1 from the repo root (packages publish output + optional zip + installer)
 
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.0"
+  #define MyAppVersion "1.0.1"
 #endif
 
 #ifndef MyAppDisplayVersion
